@@ -1,0 +1,68 @@
+# Simplified CodeAgent Docker Compose for Testing
+services:
+  # Backend Service
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "12000:12000"
+    environment:
+      - DEEPSEEK_MODEL=deepseek-ai/DeepSeek-R1-0528
+      - VLLM_ENDPOINT=http://vllm-server:8000
+      - LOG_LEVEL=INFO
+      - DEMO_MODE=true
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    networks:
+      - codeagent-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:12000/api/v2/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Mock vLLM Model Server for testing
+  vllm-server:
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM python:3.11-slim
+        WORKDIR /app
+        RUN pip install fastapi uvicorn pydantic
+        COPY mock_vllm_server.py .
+        CMD ["python", "mock_vllm_server.py"]
+    container_name: codeagent-vllm-cpu
+    ports:
+      - "8000:8000"
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+          cpus: '2.0'
+        reservations:
+          memory: 4G
+          cpus: '1.0'
+    volumes:
+      - model_cache:/root/.cache
+      - ./vllm_logs:/app/logs
+    networks:
+      - codeagent-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 60s
+      timeout: 30s
+      retries: 5
+      start_period: 600s
+
+# Persistent Volumes
+volumes:
+  model_cache:
+    driver: local
+
+# Networks
+networks:
+  codeagent-network:
+    driver: bridge

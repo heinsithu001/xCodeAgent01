@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZeroCostxCode Professional | Agentic Coding Platform</title>
+    <style>
+        /* Professional Design System - GitHub-inspired */
+        :root {
+            /* Primary Colors */
+            --primary-bg: #0D1117;
+            --secondary-bg: #161B22;
+            --tertiary-bg: #21262D;
+            --quaternary-bg: #30363D;
+            
+            /* Accent Colors */
+            --accent-blue: #58A6FF;
+            --accent-green: #3FB950;
+            --accent-orange: #FF8C42;
+            --accent-red: #F85149;
+            --accent-purple: #8957E5;
+            --accent-yellow: #F2CC60;
+            
+            /* Text Colors */
+            --text-primary: #F0F6FC;
+            --text-secondary: #8B949E;
+            --text-tertiary: #6E7681;
+            --text-muted: #484F58;
+            
+            /* Border Colors */
+            --border-default: #30363D;
+            --border-muted: #21262D;
+            --border-subtle: #161B22;
+            
+            /* Glassmorphism */
+            --glass-bg: rgba(33, 38, 45, 0.8);
+            --glass-border: rgba(240, 246, 252, 0.1);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            
+            /* Spacing */
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            
+            /* Typography */
+            --font-system: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-system);
+            background: var(--primary-bg);
+            color: var(--text-primary);
+            line-height: 1.5;
+            overflow: hidden;
+        }
+
+        /* Layout Structure */
+        .app-container {
+            display: grid;
+            grid-template-areas: 
+                "header header header"
+                "sidebar main right-panel";
+            grid-template-rows: 60px 1fr;
+            grid-template-columns: 280px 1fr 320px;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Header Navigation */
+        .header {
+            grid-area: header;
+            background: var(--secondary-bg);
+            border-bottom: 1px solid var(--border-default);
+            display: flex;
+            align-items: center;
+            padding: 0 var(--space-4);
+            gap: var(--space-4);
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .version-badge {
+            background: var(--accent-green);
+            color: var(--primary-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: var(--space-1);
+            margin-left: var(--space-6);
+        }
+
+        .nav-tab {
+            padding: var(--space-2) var(--space-4);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .nav-tab:hover {
+            background: var(--tertiary-bg);
+            color: var(--text-primary);
+        }
+
+        .nav-tab.active {
+            background: var(--tertiary-bg);
+            color: var(--accent-blue);
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 400px;
+            margin: 0 var(--space-4);
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: var(--space-2) var(--space-3);
+            background: var(--tertiary-bg);
+            border: 1px solid var(--border-default);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+        }
+
+        .search-shortcut {
+            position: absolute;
+            right: var(--space-2);
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--border-default);
+            color: var(--text-tertiary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-1) var(--space-3);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .user-menu {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* Left Sidebar */
+        .sidebar {
+            grid-area: sidebar;
+            background: var(--secondary-bg);
+            border-right: 1px solid var(--border-default);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-section {
+            padding: var(--space-4);
+            border-bottom: 1px solid var(--border-muted);
+        }
+
+        .sidebar-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: var(--space-2);
+            margin-bottom: var(--space-4);
+        }
+
+        .quick-action-btn {
+            flex: 1;
+            padding: var(--space-2) var(--space-3);
+            background: var(--tertiary-bg);
+            border: 1px solid var(--border-default);
+            border-radius: 6px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-1);
+        }
+
+        .quick-action-btn:hover {
+            background: var(--quaternary-bg);
+            border-color: var(--accent-blue);
+        }
+
+        .project-tree {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-2);
+        }
+
+        .tree-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-1) var(--space-2);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .tree-item:hover {
+            background: var(--tertiary-bg);
+        }
+
+        .tree-item.active {
+            background: var(--accent-blue);
+            color: var(--primary-bg);
+        }
+
+        .tree-icon {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Main Workspace */
+        .main-workspace {
+            grid-area: main;
+            background: var(--primary-bg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .workspace-tabs {
+            display: flex;
+            background: var(--secondary-bg);
+            border-bottom: 1px solid var(--border-default);
+            overflow-x: auto;
+        }
+
+        .workspace-tab {
+            padding: var(--space-3) var(--space-4);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: 0.9rem;
+        }
+
+        .workspace-tab:hover {
+            color: var(--text-primary);
+            background: var(--tertiary-bg);
+        }
+
+        .workspace-tab.active {
+            color: var(--accent-blue);
+            border-bottom-color: var(--accent-blue);
+            background: var(--primary-bg);
+        }
+
+        .workspace-content {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .workspace-panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: none;
+            flex-direction: column;
+        }
+
+        .workspace-panel.active {
+            display: flex;
+        }
+
+        /* AI Chat Interface */
+        .chat-interface {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-header {
+            padding: var(--space-4);
+            border-bottom: 1px solid var(--border-default);
+            background: var(--secondary-bg);
+        }
+
+        .chat-welcome {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: var(--space-2);
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .chat-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: var(--space-4);
+        }
+
+        .suggestion-chips {
+            display: flex;
+            gap: var(--space-2);
+            flex-wrap: wrap;
+        }
+
+        .suggestion-chip {
+            padding: var(--space-1) var(--space-3);
+            background: var(--tertiary-bg);
+            border: 1px solid var(--border-default);
+            border-radius: 16px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .suggestion-chip:hover {
+            background: var(--quaternary-bg);
+            color: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-4);
+        }
+
+        .chat-input-container {
+            padding: var(--space-4);
+            border-top: 1px solid var(--border-default);
+            background: var(--secondary-bg);
+        }
+
+        .chat-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: end;
+            gap: var(--space-2);
+        }
+
+        .chat-input {
+            flex: 1;
+            min-height: 44px;
+            max-height: 120px;
+            padding: var(--space-3);
+            background: var(--tertiary-bg);
+            border: 1px solid var(--border-default);
+            border-radius: 8px;
+            color: var(--text-primary);
+            resize: none;
+            font-family: var(--font-system);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+        }
+
+        .chat-send-btn {
+            padding: var(--space-3);
+            background: var(--accent-blue);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-send-btn:hover {
+            background: #4A90E2;
+            transform: translateY(-1px);
+        }
+
+        .chat-send-btn:disabled {
+            background: var(--text-muted);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Code Editor Panel */
+        .code-editor {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .editor-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-2) var(--space-4);
+            background: var(--secondary-bg);
+            border-bottom: 1px solid var(--border-default);
+        }
+
+        .editor-actions {
+            display: flex;
+            gap: var(--space-2);
+        }
+
+        .editor-btn {
+            padding: var(--space-1) var(--space-2);
+            background: var(--tertiary-bg);
+            border: 1px solid var(--border-default);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .editor-btn:hover {
+            background: var(--quaternary-bg);
+            color: var(--text-primary);
+        }
+
+        .editor-content {
+            flex: 1;
+            background: var(--primary-bg);
+            font-family: var(--font-mono);
+            font-size: 14px;
+            line-height: 1.6;
+            padding: var(--space-4);
+            overflow: auto;
+            white-space: pre-wrap;
+            color: var(--text-primary);
+        }
+
+        /* Right Panel */
+        .right-panel {
+            grid-area: right-panel;
+            background: var(--secondary-bg);
+            border-left: 1px solid var(--border-default);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-tabs {
+            display: flex;
+            background: var(--tertiary-bg);
+            border-bottom: 1px solid var(--border-default);
+        }
+
+        .panel-tab {
+            flex: 1;
+            padding: var(--space-2) var(--space-3);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .panel-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .panel-tab.active {
+            background: var(--secondary-bg);
+            color: var(--accent-blue);
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-4);
+        }
+
+        .transparency-section {
+            margin-bottom: var(--space-6);
+        }
+
+        .transparency-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: var(--space-3);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: start;
+            gap: var(--space-3);
+            padding: var(--space-3);
+            background: var(--tertiary-bg);
+            border-radius: 6px;
+            margin-bottom: var(--space-2);
+        }
+
+        .activity-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            margin-bottom: var(--space-1);
+        }
+
+        .activity-time {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-3);
+            margin-bottom: var(--space-4);
+        }
+
+        .metric-card {
+            background: var(--tertiary-bg);
+            padding: var(--space-3);
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--accent-green);
+            margin-bottom: var(--space-1);
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Loading States */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(13, 17, 23, 0.9);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .loading-content {
+            text-align: center;
+            color: var(--text-primary);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-default);
+            border-top: 3px solid var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto var(--space-4);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: var(--space-2);
+        }
+
+        .loading-subtext {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .app-container {
+                grid-template-columns: 240px 1fr 280px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-areas: 
+                    "header header header"
+                    "main main main";
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar,
+            .right-panel {
+                display: none;
+            }
+            
+            .search-container {
+                display: none;
+            }
+            
+            .nav-tabs {
+                margin-left: var(--space-2);
+            }
+        }
+
+        /* Utility Classes */
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .gap-2 { gap: var(--space-2); }
+        .gap-3 { gap: var(--space-3); }
+        .text-sm { font-size: 0.85rem; }
+        .text-xs { font-size: 0.75rem; }
+        .font-mono { font-family: var(--font-mono); }
+        .text-blue { color: var(--accent-blue); }
+        .text-green { color: var(--accent-green); }
+        .text-orange { color: var(--accent-orange); }
+        .text-red { color: var(--accent-red); }
+        .text-purple { color: var(--accent-purple); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header Navigation -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">🤖</div>
+                <span>ZeroCostxCode</span>
+                <span class="version-badge">v3.0</span>
+            </div>
+            
+            <nav class="nav-tabs">
+                <button class="nav-tab active">Workspace</button>
+                <button class="nav-tab">Deploy</button>
+                <button class="nav-tab">Monitor</button>
+            </nav>
+            
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search files, commands, or ask AI...">
+                <span class="search-shortcut">⌘K</span>
+            </div>
+            
+            <div class="header-actions">
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>Connected</span>
+                </div>
+                <div class="user-menu">U</div>
+            </div>
+        </header>
+
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <div class="quick-actions">
+                    <button class="quick-action-btn">
+                        <span>+</span>
+                        <span>New</span>
+                    </button>
+                    <button class="quick-action-btn">
+                        <span>📁</span>
+                        <span>Import</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">Projects</div>
+                <div class="project-tree">
+                    <div class="tree-item active">
+                        <div class="tree-icon">📁</div>
+                        <span>Current Project</span>
+                    </div>
+                    <div class="tree-item">
+                        <div class="tree-icon">📄</div>
+                        <span>main.py</span>
+                    </div>
+                    <div class="tree-item">
+                        <div class="tree-icon">📄</div>
+                        <span>requirements.txt</span>
+                    </div>
+                    <div class="tree-item">
+                        <div class="tree-icon">📄</div>
+                        <span>README.md</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">Recent Sessions</div>
+                <div class="project-tree">
+                    <div class="tree-item">
+                        <div class="tree-icon text-green">●</div>
+                        <span>FastAPI Project</span>
+                    </div>
+                    <div class="tree-item">
+                        <div class="tree-icon text-orange">●</div>
+                        <span>React Dashboard</span>
+                    </div>
+                    <div class="tree-item">
+                        <div class="tree-icon text-blue">●</div>
+                        <span>ML Pipeline</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="main-workspace">
+            <div class="workspace-tabs">
+                <button class="workspace-tab active" data-panel="chat">
+                    <span>💬</span>
+                    <span>AI Chat</span>
+                </button>
+                <button class="workspace-tab" data-panel="editor">
+                    <span>📝</span>
+                    <span>Code Editor</span>
+                </button>
+                <button class="workspace-tab" data-panel="files">
+                    <span>📁</span>
+                    <span>Files</span>
+                </button>
+                <button class="workspace-tab" data-panel="preview">
+                    <span>👁️</span>
+                    <span>Preview</span>
+                </button>
+                <button class="workspace-tab" data-panel="terminal">
+                    <span>⚡</span>
+                    <span>Terminal</span>
+                </button>
+            </div>
+            
+            <div class="workspace-content">
+                <!-- AI Chat Panel -->
+                <div class="workspace-panel active" id="chat-panel">
+                    <div class="chat-interface">
+                        <div class="chat-header">
+                            <div class="chat-welcome">Welcome to ZeroCostxCode Professional</div>
+                            <div class="chat-subtitle">Your AI-powered coding companion with unified agent capabilities</div>
+                            <div class="suggestion-chips">
+                                <button class="suggestion-chip" onclick="sendSuggestion('Create a FastAPI server')">Create a FastAPI server</button>
+                                <button class="suggestion-chip" onclick="sendSuggestion('Build a React component')">Build a React component</button>
+                                <button class="suggestion-chip" onclick="sendSuggestion('Optimize my code')">Optimize my code</button>
+                                <button class="suggestion-chip" onclick="sendSuggestion('Deploy to production')">Deploy to production</button>
+                            </div>
+                        </div>
+                        <div class="chat-messages" id="chatMessages">
+                            <!-- Messages will be populated here -->
+                        </div>
+                        <div class="chat-input-container">
+                            <div class="chat-input-wrapper">
+                                <textarea 
+                                    class="chat-input" 
+                                    id="chatInput"
+                                    placeholder="Ask me anything about coding, or describe what you want to build..."
+                                    rows="1"
+                                ></textarea>
+                                <button class="chat-send-btn" id="chatSendBtn" onclick="sendMessage()">
+                                    <span>→</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Code Editor Panel -->
+                <div class="workspace-panel" id="editor-panel">
+                    <div class="code-editor">
+                        <div class="editor-toolbar">
+                            <div class="editor-actions">
+                                <button class="editor-btn">Save</button>
+                                <button class="editor-btn">Format</button>
+                                <button class="editor-btn">Run</button>
+                            </div>
+                            <div class="editor-actions">
+                                <select class="editor-btn">
+                                    <option>Python</option>
+                                    <option>JavaScript</option>
+                                    <option>TypeScript</option>
+                                    <option>Rust</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="editor-content" id="editorContent">
+# Welcome to ZeroCostxCode Professional
+# Your AI-powered coding environment
+
+def hello_world():
+    """A simple hello world function"""
+    print("Hello from ZeroCostxCode Professional!")
+    return "Welcome to the future of coding!"
+
+if __name__ == "__main__":
+    message = hello_world()
+    print(f"Message: {message}")
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Files Panel -->
+                <div class="workspace-panel" id="files-panel">
+                    <div class="code-editor">
+                        <div class="editor-toolbar">
+                            <div class="editor-actions">
+                                <button class="editor-btn">New File</button>
+                                <button class="editor-btn">New Folder</button>
+                                <button class="editor-btn">Upload</button>
+                            </div>
+                        </div>
+                        <div class="editor-content">
+                            <div class="project-tree">
+                                <div class="tree-item">
+                                    <div class="tree-icon">📁</div>
+                                    <span>src/</span>
+                                </div>
+                                <div class="tree-item" style="margin-left: 20px;">
+                                    <div class="tree-icon">📄</div>
+                                    <span>main.py</span>
+                                </div>
+                                <div class="tree-item" style="margin-left: 20px;">
+                                    <div class="tree-icon">📄</div>
+                                    <span>utils.py</span>
+                                </div>
+                                <div class="tree-item">
+                                    <div class="tree-icon">📁</div>
+                                    <span>tests/</span>
+                                </div>
+                                <div class="tree-item" style="margin-left: 20px;">
+                                    <div class="tree-icon">📄</div>
+                                    <span>test_main.py</span>
+                                </div>
+                                <div class="tree-item">
+                                    <div class="tree-icon">📄</div>
+                                    <span>requirements.txt</span>
+                                </div>
+                                <div class="tree-item">
+                                    <div class="tree-icon">📄</div>
+                                    <span>README.md</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Panel -->
+                <div class="workspace-panel" id="preview-panel">
+                    <div class="code-editor">
+                        <div class="editor-toolbar">
+                            <div class="editor-actions">
+                                <button class="editor-btn">Refresh</button>
+                                <button class="editor-btn">Desktop</button>
+                                <button class="editor-btn">Tablet</button>
+                                <button class="editor-btn">Mobile</button>
+                            </div>
+                            <div class="editor-actions">
+                                <button class="editor-btn">Open in New Tab</button>
+                            </div>
+                        </div>
+                        <div class="editor-content" style="background: white; color: black; text-align: center; padding: 40px;">
+                            <h1>Live Preview</h1>
+                            <p>Your application preview will appear here</p>
+                            <div style="margin-top: 20px; padding: 20px; background: #f5f5f5; border-radius: 8px;">
+                                <h3>ZeroCostxCode Professional</h3>
+                                <p>Real-time preview of your applications</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terminal Panel -->
+                <div class="workspace-panel" id="terminal-panel">
+                    <div class="code-editor">
+                        <div class="editor-toolbar">
+                            <div class="editor-actions">
+                                <button class="editor-btn">Clear</button>
+                                <button class="editor-btn">Copy</button>
+                                <button class="editor-btn">Download Log</button>
+                            </div>
+                            <div class="editor-actions">
+                                <span class="text-sm text-secondary">bash | UTF-8 | 42 lines</span>
+                            </div>
+                        </div>
+                        <div class="editor-content font-mono">
+$ python main.py
+Hello from ZeroCostxCode Professional!
+Message: Welcome to the future of coding!
+
+$ pip install -r requirements.txt
+Collecting fastapi
+  Downloading fastapi-0.104.1-py3-none-any.whl
+Installing collected packages: fastapi, uvicorn
+Successfully installed fastapi-0.104.1 uvicorn-0.24.0
+
+$ uvicorn main:app --reload
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [12345] using StatReload
+INFO:     Started server process [12346]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+
+$ █
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Panel -->
+        <aside class="right-panel">
+            <div class="panel-tabs">
+                <button class="panel-tab active" data-panel="transparency">Agents</button>
+                <button class="panel-tab" data-panel="context">Context</button>
+                <button class="panel-tab" data-panel="metrics">Metrics</button>
+            </div>
+            
+            <div class="panel-content">
+                <div class="transparency-section">
+                    <div class="transparency-title">
+                        <span>🤖</span>
+                        <span>Agent Activity</span>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon text-green">✓</div>
+                        <div class="activity-content">
+                            <div class="activity-text">OpenHands agent initialized</div>
+                            <div class="activity-time">2 minutes ago</div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon text-blue">⚡</div>
+                        <div class="activity-content">
+                            <div class="activity-text">Manus AI processing request</div>
+                            <div class="activity-time">1 minute ago</div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon text-purple">✨</div>
+                        <div class="activity-content">
+                            <div class="activity-text">Emergent vibe coding active</div>
+                            <div class="activity-time">30 seconds ago</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="transparency-section">
+                    <div class="transparency-title">
+                        <span>📊</span>
+                        <span>Performance</span>
+                    </div>
+                    
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-value">1.2s</div>
+                            <div class="metric-label">Response Time</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">98%</div>
+                            <div class="metric-label">Success Rate</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">3</div>
+                            <div class="metric-label">Active Agents</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">15</div>
+                            <div class="metric-label">Tasks Today</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="transparency-section">
+                    <div class="transparency-title">
+                        <span>🎯</span>
+                        <span>Quick Actions</span>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: var(--space-2);">
+                        <button class="quick-action-btn">
+                            <span>💾</span>
+                            <span>Save Project</span>
+                        </button>
+                        <button class="quick-action-btn">
+                            <span>▶️</span>
+                            <span>Run Code</span>
+                        </button>
+                        <button class="quick-action-btn">
+                            <span>🚀</span>
+                            <span>Deploy</span>
+                        </button>
+                        <button class="quick-action-btn">
+                            <span>🌿</span>
+                            <span>New Branch</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Processing with AI Agents...</div>
+            <div class="loading-subtext">OpenHands + Manus + Emergent working together</div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = window.location.origin;
+        
+        // State management
+        let currentSession = null;
+        let activePanel = 'chat';
+        let authToken = null;
+        let currentUser = null;
+
+        // Authentication functions
+        function getAuthToken() {
+            return authToken || localStorage.getItem('auth_token');
+        }
+
+        function setAuthToken(token) {
+            authToken = token;
+            localStorage.setItem('auth_token', token);
+        }
+
+        function clearAuth() {
+            authToken = null;
+            currentUser = null;
+            localStorage.removeItem('auth_token');
+        }
+
+        async function loginUser(username, password) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/v3/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    setAuthToken(data.access_token);
+                    currentUser = data.user;
+                    return { success: true, user: data.user };
+                } else {
+                    return { success: false, error: data.detail };
+                }
+            } catch (error) {
+                return { success: false, error: 'Login failed' };
+            }
+        }
+
+        async function autoLogin() {
+            // Auto-login with demo credentials for demo purposes
+            const result = await loginUser('demo', 'demo123');
+            if (result.success) {
+                console.log('Auto-logged in as demo user');
+                updateUserInfo(result.user);
+            }
+        }
+
+        function updateUserInfo(user) {
+            // Update UI with user information
+            const userElements = document.querySelectorAll('.user-name');
+            userElements.forEach(el => el.textContent = user.username);
+            
+            const emailElements = document.querySelectorAll('.user-email');
+            emailElements.forEach(el => el.textContent = user.email);
+        }
+        
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventListeners();
+            autoLogin();
+            checkSystemStatus();
+        });
+        
+        function initializeApp() {
+            // Auto-resize chat input
+            const chatInput = document.getElementById('chatInput');
+            chatInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+            
+            // Handle Enter key in chat
+            chatInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        }
+        
+        function setupEventListeners() {
+            // Workspace tab switching
+            document.querySelectorAll('.workspace-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const panelId = this.dataset.panel;
+                    switchPanel(panelId);
+                });
+            });
+            
+            // Panel tab switching
+            document.querySelectorAll('.panel-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // Global keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.metaKey || e.ctrlKey) {
+                    switch(e.key) {
+                        case 'k':
+                            e.preventDefault();
+                            document.querySelector('.search-input').focus();
+                            break;
+                        case 's':
+                            e.preventDefault();
+                            saveProject();
+                            break;
+                        case 'Enter':
+                            if (e.shiftKey) {
+                                e.preventDefault();
+                                runCode();
+                            }
+                            break;
+                    }
+                }
+            });
+        }
+        
+        function switchPanel(panelId) {
+            // Update tab states
+            document.querySelectorAll('.workspace-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-panel="${panelId}"]`).classList.add('active');
+            
+            // Update panel visibility
+            document.querySelectorAll('.workspace-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            document.getElementById(`${panelId}-panel`).classList.add('active');
+            
+            activePanel = panelId;
+        }
+        
+        async function checkSystemStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/v3/status`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateStatusIndicator('connected', 'Connected');
+                    updateAgentStatus(data);
+                } else {
+                    updateStatusIndicator('error', 'Error');
+                }
+            } catch (error) {
+                console.error('Status check failed:', error);
+                updateStatusIndicator('disconnected', 'Disconnected');
+            }
+        }
+        
+        function updateStatusIndicator(status, text) {
+            const indicator = document.querySelector('.status-indicator');
+            const dot = document.querySelector('.status-dot');
+            const span = indicator.querySelector('span');
+            
+            // Reset classes
+            dot.className = 'status-dot';
+            
+            switch(status) {
+                case 'connected':
+                    dot.style.background = 'var(--accent-green)';
+                    break;
+                case 'disconnected':
+                    dot.style.background = 'var(--accent-red)';
+                    break;
+                case 'error':
+                    dot.style.background = 'var(--accent-orange)';
+                    break;
+            }
+            
+            span.textContent = text;
+        }
+        
+        function updateAgentStatus(data) {
+            // Update metrics if available
+            if (data.unified_agents) {
+                const agents = data.unified_agents;
+                // Update agent activity in right panel
+                console.log('Agent status updated:', agents);
+            }
+        }
+        
+        function sendSuggestion(text) {
+            document.getElementById('chatInput').value = text;
+            sendMessage();
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Clear input
+            input.value = '';
+            input.style.height = 'auto';
+            
+            // Add user message to chat
+            addMessageToChat('user', message);
+            
+            // Show loading
+            showLoading();
+            addTypingIndicator();
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/v3/ai/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    },
+                    body: JSON.stringify({
+                        prompt: message,
+                        task_type: 'generate',
+                        language: 'python',
+                        context: ''
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Remove typing indicator
+                removeTypingIndicator();
+                
+                if (response.ok && data.content) {
+                    addMessageToChat('assistant', data.content);
+                    if (data.model) {
+                        console.log(`Response from ${data.model}`);
+                    }
+                } else {
+                    addMessageToChat('error', `Error: ${data.error || data.detail || 'Unknown error'}`);
+                }
+            } catch (error) {
+                removeTypingIndicator();
+                addMessageToChat('error', `Network error: ${error.message}`);
+            }
+            
+            hideLoading();
+        }
+        
+        function addMessageToChat(type, content) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${type}`;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            
+            let avatar, name;
+            switch(type) {
+                case 'user':
+                    avatar = '👤';
+                    name = 'You';
+                    break;
+                case 'assistant':
+                    avatar = '🤖';
+                    name = 'AI Assistant';
+                    break;
+                case 'error':
+                    avatar = '⚠️';
+                    name = 'System';
+                    break;
+            }
+            
+            messageDiv.innerHTML = `
+                <div style="display: flex; gap: var(--space-3); margin-bottom: var(--space-4);">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--tertiary-bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        ${avatar}
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-1);">
+                            <span style="font-weight: 600; font-size: 0.9rem;">${name}</span>
+                            <span style="font-size: 0.75rem; color: var(--text-tertiary);">${timestamp}</span>
+                        </div>
+                        <div style="color: var(--text-primary); line-height: 1.5; white-space: pre-wrap;">${content}</div>
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function addTypingIndicator() {
+            const messagesContainer = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <div style="display: flex; gap: var(--space-3); margin-bottom: var(--space-4);">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--tertiary-bg); display: flex; align-items: center; justify-content: center;">
+                        🤖
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-1);">
+                            <span style="font-weight: 600; font-size: 0.9rem;">AI Assistant</span>
+                            <span style="font-size: 0.75rem; color: var(--text-tertiary);">thinking...</span>
+                        </div>
+                        <div style="color: var(--text-secondary); font-style: italic;">
+                            <span style="animation: pulse 1.5s infinite;">●</span>
+                            <span style="animation: pulse 1.5s infinite 0.5s;">●</span>
+                            <span style="animation: pulse 1.5s infinite 1s;">●</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(typingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+        
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+        
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+        
+        function saveProject() {
+            console.log('Saving project...');
+            // Implement save functionality
+        }
+        
+        function runCode() {
+            console.log('Running code...');
+            // Implement run functionality
+        }
+        
+        // Auto-refresh status every 30 seconds
+        setInterval(checkSystemStatus, 30000);
+        
+        // Add some initial welcome messages
+        setTimeout(() => {
+            addMessageToChat('assistant', 'Welcome to ZeroCostxCode Professional! 🚀\n\nI\'m your AI coding companion with unified agent capabilities:\n\n🤖 **OpenHands Mode**: High-reliability execution (53% SWE-Bench success)\n🧠 **Manus AI Mode**: Autonomous with full transparency\n✨ **Emergent Mode**: Natural language to production apps\n🎯 **Hybrid Mode**: Best of all three combined\n\nWhat would you like to build today?');
+        }, 1000);
+    </script>
+</body>
+</html>

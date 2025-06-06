@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepSeek R1 Status Check</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        pre { background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        button { 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 DeepSeek R1 0528 Status Check</h1>
+        
+        <div class="info status">
+            <strong>Environment Detection:</strong>
+            <div id="env-info">Checking...</div>
+        </div>
+
+        <div class="info status">
+            <strong>API Base URL:</strong>
+            <div id="api-base">Detecting...</div>
+        </div>
+
+        <div class="info status">
+            <strong>WebSocket URL:</strong>
+            <div id="ws-url">Detecting...</div>
+        </div>
+
+        <h2>Service Status</h2>
+        
+        <button onclick="checkBackendHealth()">Check Backend Health</button>
+        <button onclick="checkVLLMHealth()">Check vLLM Health</button>
+        <button onclick="testCodeGeneration()">Test Code Generation</button>
+        <button onclick="testChat()">Test Chat</button>
+        
+        <div id="results"></div>
+
+        <h2>Quick API Test</h2>
+        <textarea id="test-prompt" rows="3" style="width: 100%; padding: 10px;" placeholder="Enter a test prompt...">Create a simple Python function</textarea>
+        <br><br>
+        <button onclick="quickTest()">Run Quick Test</button>
+        
+        <div id="quick-results"></div>
+    </div>
+
+    <script>
+        // Environment detection
+        const isExternal = window.location.hostname.includes('prod-runtime.all-hands.dev');
+        const API_BASE = isExternal ? 
+            'https://work-1-nrbspfazbqxywbea.prod-runtime.all-hands.dev/api/v1' : 
+            'http://localhost:12000/api/v1';
+        const WS_URL = isExternal ? 
+            'wss://work-1-nrbspfazbqxywbea.prod-runtime.all-hands.dev/ws/real-time' : 
+            'ws://localhost:12000/ws/real-time';
+
+        // Display environment info
+        document.getElementById('env-info').innerHTML = `
+            <strong>External:</strong> ${isExternal}<br>
+            <strong>Hostname:</strong> ${window.location.hostname}<br>
+            <strong>Protocol:</strong> ${window.location.protocol}
+        `;
+        document.getElementById('api-base').textContent = API_BASE;
+        document.getElementById('ws-url').textContent = WS_URL;
+
+        function addResult(title, success, data) {
+            const results = document.getElementById('results');
+            const statusClass = success ? 'success' : 'error';
+            const statusText = success ? '✅ SUCCESS' : '❌ ERROR';
+            
+            results.innerHTML += `
+                <div class="${statusClass} status">
+                    <strong>${title}: ${statusText}</strong>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                </div>
+            `;
+        }
+
+        async function checkBackendHealth() {
+            try {
+                const response = await fetch(`${API_BASE.replace('/api/v1', '')}/health`);
+                const data = await response.json();
+                addResult('Backend Health', response.ok, data);
+            } catch (error) {
+                addResult('Backend Health', false, { error: error.message });
+            }
+        }
+
+        async function checkVLLMHealth() {
+            try {
+                const vllmUrl = API_BASE.replace('/api/v1', '').replace('12000', '8000');
+                const response = await fetch(`${vllmUrl}/health`);
+                const data = await response.json();
+                addResult('vLLM Health', response.ok, data);
+            } catch (error) {
+                addResult('vLLM Health', false, { error: error.message });
+            }
+        }
+
+        async function testCodeGeneration() {
+            try {
+                const response = await fetch(`${API_BASE}/generate-code`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: 'Create a simple hello world function',
+                        language: 'python',
+                        max_tokens: 500
+                    })
+                });
+                const data = await response.json();
+                addResult('Code Generation', response.ok, {
+                    success: data.success,
+                    language: data.language,
+                    execution_time: data.execution_time,
+                    code_length: data.code ? data.code.length : 0,
+                    model: data.model
+                });
+            } catch (error) {
+                addResult('Code Generation', false, { error: error.message });
+            }
+        }
+
+        async function testChat() {
+            try {
+                const response = await fetch(`${API_BASE}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: 'Hello, can you help me with programming?',
+                        context: 'general_programming',
+                        max_tokens: 300
+                    })
+                });
+                const data = await response.json();
+                addResult('Chat Test', response.ok, {
+                    success: data.success,
+                    execution_time: data.execution_time,
+                    response_length: data.response ? data.response.length : 0,
+                    model: data.model
+                });
+            } catch (error) {
+                addResult('Chat Test', false, { error: error.message });
+            }
+        }
+
+        async function quickTest() {
+            const prompt = document.getElementById('test-prompt').value;
+            const quickResults = document.getElementById('quick-results');
+            
+            if (!prompt.trim()) {
+                quickResults.innerHTML = '<div class="error status">Please enter a test prompt</div>';
+                return;
+            }
+
+            quickResults.innerHTML = '<div class="info status">Testing...</div>';
+
+            try {
+                const startTime = Date.now();
+                const response = await fetch(`${API_BASE}/generate-code`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        language: 'python',
+                        max_tokens: 1000
+                    })
+                });
+                const data = await response.json();
+                const responseTime = Date.now() - startTime;
+
+                if (response.ok && data.success) {
+                    quickResults.innerHTML = `
+                        <div class="success status">
+                            <strong>✅ Quick Test Successful (${responseTime}ms)</strong>
+                            <pre>${data.code}</pre>
+                        </div>
+                    `;
+                } else {
+                    quickResults.innerHTML = `
+                        <div class="error status">
+                            <strong>❌ Quick Test Failed</strong>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                quickResults.innerHTML = `
+                    <div class="error status">
+                        <strong>❌ Quick Test Error</strong>
+                        <pre>${error.message}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        // Auto-run basic checks on load
+        window.onload = function() {
+            setTimeout(() => {
+                checkBackendHealth();
+                setTimeout(() => checkVLLMHealth(), 1000);
+            }, 500);
+        };
+    </script>
+</body>
+</html>

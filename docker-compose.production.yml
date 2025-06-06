@@ -1,0 +1,383 @@
+# Enhanced CodeAgent03 + DeepSeek R1 Production Docker Compose
+# Phase 2: Complete production deployment with auto-scaling and monitoring
+
+services:
+  # Load Balancer & Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: codeagent-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/ssl:ro
+      - ./nginx/logs:/var/log/nginx
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - codeagent-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend Services (Multi-instance for load balancing)
+  frontend:
+    build: 
+      context: ./frontend-v2
+      dockerfile: Dockerfile.production
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    environment:
+      - NODE_ENV=production
+      - API_URL=http://backend:8000
+      - VITE_API_BASE_URL=/api/v2
+    networks:
+      - codeagent-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Backend Services (Multi-instance with auto-scaling)
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    environment:
+      - DEEPSEEK_MODEL=deepseek-ai/DeepSeek-R1-0528
+      - VLLM_ENDPOINT=http://vllm-server:8000
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://codeagent:secure_password@postgres:5432/codeagent_db
+      - LOG_LEVEL=INFO
+      - DEMO_MODE=true
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - codeagent-network
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v2/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # vLLM Model Server (GPU/CPU Adaptive)
+  vllm-server-gpu:
+    image: vllm/vllm-openai:latest
+    container_name: codeagent-vllm-gpu
+    command: [
+      "--model", "deepseek-ai/DeepSeek-R1-0528",
+      "--host", "0.0.0.0",
+      "--port", "8000",
+      "--tensor-parallel-size", "1",
+      "--gpu-memory-utilization", "0.8",
+      "--max-model-len", "32768",
+      "--trust-remote-code"
+    ]
+    ports:
+      - "8000:8000"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+        limits:
+          memory: 16G
+    volumes:
+      - model_cache:/root/.cache
+      - ./vllm_logs:/app/logs
+    networks:
+      codeagent-network:
+        aliases:
+          - vllm-server
+    profiles: ["gpu"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 60s
+      timeout: 30s
+      retries: 5
+      start_period: 300s
+
+  # vLLM Model Server (CPU Optimized)
+  vllm-server-cpu:
+    image: vllm/vllm-openai:latest
+    container_name: codeagent-vllm-cpu
+    command: [
+      "--model", "deepseek-ai/DeepSeek-R1-0528",
+      "--host", "0.0.0.0",
+      "--port", "8000",
+      "--device", "cpu",
+      "--max-model-len", "16384",
+      "--trust-remote-code"
+    ]
+    ports:
+      - "8000:8000"
+    deploy:
+      resources:
+        limits:
+          memory: 32G
+          cpus: '8.0'
+        reservations:
+          memory: 16G
+          cpus: '4.0'
+    volumes:
+      - model_cache:/root/.cache
+      - ./vllm_logs:/app/logs
+    networks:
+      codeagent-network:
+        aliases:
+          - vllm-server
+    profiles: ["cpu"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 60s
+      timeout: 30s
+      retries: 5
+      start_period: 600s
+
+  # Redis Cache & Session Store
+  redis:
+    image: redis:7-alpine
+    container_name: codeagent-redis
+    command: redis-server --appendonly yes --requirepass redis_secure_password
+    volumes:
+      - redis_data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    networks:
+      - codeagent-network
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: codeagent-postgres
+    environment:
+      - POSTGRES_DB=codeagent_db
+      - POSTGRES_USER=codeagent
+      - POSTGRES_PASSWORD=secure_password
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+      - ./postgres/backups:/backups
+    networks:
+      - codeagent-network
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U codeagent -d codeagent_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Monitoring & Metrics
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: codeagent-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/rules:/etc/prometheus/rules:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - codeagent-network
+    restart: unless-stopped
+
+  # Grafana Dashboard
+  grafana:
+    image: grafana/grafana:latest
+    container_name: codeagent-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin_secure_password
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - codeagent-network
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  # Log Aggregation
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: codeagent-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - codeagent-network
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+    restart: unless-stopped
+
+  # Log Processing
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    container_name: codeagent-logstash
+    volumes:
+      - ./monitoring/logstash/pipeline:/usr/share/logstash/pipeline:ro
+      - ./logs:/app/logs:ro
+    networks:
+      - codeagent-network
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+
+  # Log Visualization
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: codeagent-kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    networks:
+      - codeagent-network
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+
+  # Auto-scaling Controller
+  autoscaler:
+    build:
+      context: ./autoscaler
+      dockerfile: Dockerfile
+    container_name: codeagent-autoscaler
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - PROMETHEUS_URL=http://prometheus:9090
+      - SCALE_UP_THRESHOLD=80
+      - SCALE_DOWN_THRESHOLD=20
+      - MIN_REPLICAS=2
+      - MAX_REPLICAS=10
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - codeagent-network
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+# Persistent Volumes
+volumes:
+  model_cache:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/model_cache
+  redis_data:
+    driver: local
+  postgres_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
+
+# Networks
+networks:
+  codeagent-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# Health Check & Monitoring
+x-healthcheck-defaults: &healthcheck-defaults
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 60s
+
+# Resource Limits
+x-resource-defaults: &resource-defaults
+  deploy:
+    resources:
+      limits:
+        memory: 1G
+        cpus: '0.5'
+      reservations:
+        memory: 512M
+        cpus: '0.25'

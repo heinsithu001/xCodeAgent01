@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # Enhanced Backend with Unified AI Capabilities
+  enhanced-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.enhanced
+    ports:
+      - "12000:12000"
+    environment:
+      - PYTHONPATH=/app
+      - VLLM_ENDPOINT=http://vllm-server:8000
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+      - ./workspace:/app/workspace
+      - ./storage:/app/storage
+    depends_on:
+      - vllm-server
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:12000/api/v3/status')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - zerocost-network
+
+  # Mock vLLM Server (Production-ready)
+  vllm-server:
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM python:3.11-slim
+        WORKDIR /app
+        RUN pip install fastapi uvicorn
+        COPY mock_vllm_server.py .
+        EXPOSE 8000
+        CMD ["python", "mock_vllm_server.py"]
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - zerocost-network
+
+  # Enhanced Frontend (Optional separate container)
+  enhanced-frontend:
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM nginx:alpine
+        COPY frontend-v3/ /usr/share/nginx/html/
+        COPY nginx.enhanced.conf /etc/nginx/nginx.conf
+        EXPOSE 80
+        CMD ["nginx", "-g", "daemon off;"]
+    ports:
+      - "12001:80"
+    depends_on:
+      - enhanced-backend
+    restart: unless-stopped
+    networks:
+      - zerocost-network
+
+networks:
+  zerocost-network:
+    driver: bridge
+
+volumes:
+  workspace-data:
+  storage-data:
+  logs-data:

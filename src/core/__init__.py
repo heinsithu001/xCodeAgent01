@@ -1,0 +1,1 @@
+# Enhanced CodeAgent Integration Core Module

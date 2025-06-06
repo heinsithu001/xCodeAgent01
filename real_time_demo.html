@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepSeek R1 0528 Real-Time Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .status-bar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .demo-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .demo-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .input-group input,
+        .input-group textarea,
+        .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .output {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            min-height: 100px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .metrics {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .metrics h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .metric-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .stream-output {
+            background: #1e1e1e;
+            color: #00ff00;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .stream-chunk {
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+
+        .timestamp {
+            color: #888;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 DeepSeek R1 0528 Real-Time Demo</h1>
+            <p>Production vLLM Integration with Real-Time Data Processing</p>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-indicator"></div>
+                <span>vLLM Server: <span id="vllm-status">Checking...</span></span>
+            </div>
+            <div class="status-item">
+                <div class="status-indicator"></div>
+                <span>Backend API: <span id="backend-status">Checking...</span></span>
+            </div>
+            <div class="status-item">
+                <div class="status-indicator"></div>
+                <span>Real-Time Mode: <span id="realtime-status">Active</span></span>
+            </div>
+        </div>
+
+        <div class="demo-grid">
+            <!-- Code Generation Demo -->
+            <div class="demo-card">
+                <h3>💻 Real-Time Code Generation</h3>
+                <div class="input-group">
+                    <label for="code-prompt">Code Request:</label>
+                    <textarea id="code-prompt" rows="3" placeholder="Describe the code you want to generate...">Create a FastAPI endpoint for real-time data streaming with WebSocket support</textarea>
+                </div>
+                <div class="input-group">
+                    <label for="code-language">Language:</label>
+                    <select id="code-language">
+                        <option value="python">Python</option>
+                        <option value="javascript">JavaScript</option>
+                        <option value="java">Java</option>
+                        <option value="cpp">C++</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="generateCode()">Generate Code</button>
+                <div id="code-output" class="output"></div>
+            </div>
+
+            <!-- Chat Demo -->
+            <div class="demo-card">
+                <h3>💬 Real-Time AI Chat</h3>
+                <div class="input-group">
+                    <label for="chat-message">Message:</label>
+                    <textarea id="chat-message" rows="3" placeholder="Ask DeepSeek R1 anything...">Explain the benefits of real-time AI processing in production systems</textarea>
+                </div>
+                <div class="input-group">
+                    <label for="chat-context">Context:</label>
+                    <select id="chat-context">
+                        <option value="general_programming">General Programming</option>
+                        <option value="real_time_systems">Real-Time Systems</option>
+                        <option value="ai_ml">AI/ML</option>
+                        <option value="web_development">Web Development</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="sendChat()">Send Message</button>
+                <div id="chat-output" class="output"></div>
+            </div>
+
+            <!-- Real-Time Streaming Demo -->
+            <div class="demo-card">
+                <h3>🌊 Real-Time Data Streaming</h3>
+                <div class="input-group">
+                    <label for="stream-query">Data Query:</label>
+                    <textarea id="stream-query" rows="3" placeholder="Describe the data analysis you need...">Analyze system performance metrics and provide optimization recommendations</textarea>
+                </div>
+                <div class="input-group">
+                    <label for="stream-type">Data Type:</label>
+                    <select id="stream-type">
+                        <option value="performance_metrics">Performance Metrics</option>
+                        <option value="code_analysis">Code Analysis</option>
+                        <option value="system_monitoring">System Monitoring</option>
+                        <option value="user_behavior">User Behavior</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="startStreaming()">Start Streaming</button>
+                <div id="stream-output" class="stream-output"></div>
+            </div>
+
+            <!-- WebSocket Demo -->
+            <div class="demo-card">
+                <h3>🔌 WebSocket Real-Time</h3>
+                <div class="input-group">
+                    <label for="ws-message">WebSocket Message:</label>
+                    <textarea id="ws-message" rows="3" placeholder="Send real-time message via WebSocket...">Process real-time data stream for performance optimization</textarea>
+                </div>
+                <button class="btn" onclick="connectWebSocket()" id="ws-btn">Connect WebSocket</button>
+                <div id="ws-output" class="stream-output"></div>
+            </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="metrics">
+            <h3>📊 Real-Time Performance Metrics</h3>
+            <div class="metrics-grid">
+                <div class="metric-item">
+                    <div class="metric-value" id="total-requests">0</div>
+                    <div class="metric-label">Total Requests</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value" id="success-rate">100%</div>
+                    <div class="metric-label">Success Rate</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value" id="avg-response">0ms</div>
+                    <div class="metric-label">Avg Response</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-value" id="active-connections">0</div>
+                    <div class="metric-label">Active Connections</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Detect if we're running in the external environment
+        const isExternal = window.location.hostname.includes('prod-runtime.all-hands.dev');
+        const API_BASE = isExternal ? 
+            'https://work-1-nrbspfazbqxywbea.prod-runtime.all-hands.dev/api/v1' : 
+            'http://localhost:12000/api/v1';
+        let websocket = null;
+        let metrics = {
+            totalRequests: 0,
+            successfulRequests: 0,
+            totalResponseTime: 0
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkSystemStatus();
+            updateMetrics();
+            setInterval(updateMetrics, 5000); // Update metrics every 5 seconds
+        });
+
+        async function checkSystemStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/status`);
+                const data = await response.json();
+                
+                document.getElementById('vllm-status').textContent = data.vllm_server.status;
+                document.getElementById('backend-status').textContent = data.status;
+                document.getElementById('realtime-status').textContent = data.real_time_mode ? 'Active' : 'Inactive';
+            } catch (error) {
+                console.error('Status check failed:', error);
+                document.getElementById('vllm-status').textContent = 'Error';
+                document.getElementById('backend-status').textContent = 'Error';
+            }
+        }
+
+        async function generateCode() {
+            const prompt = document.getElementById('code-prompt').value;
+            const language = document.getElementById('code-language').value;
+            const output = document.getElementById('code-output');
+            
+            if (!prompt.trim()) {
+                output.innerHTML = '<span style="color: red;">Please enter a code request.</span>';
+                return;
+            }
+
+            output.innerHTML = '<div class="loading"></div> Generating code...';
+            
+            const startTime = Date.now();
+            
+            try {
+                const response = await fetch(`${API_BASE}/generate-code`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        language: language,
+                        complexity: 'advanced',
+                        temperature: 0.1,
+                        max_tokens: 2048
+                    })
+                });
+
+                const data = await response.json();
+                const responseTime = Date.now() - startTime;
+                
+                updateMetricsData(responseTime, response.ok);
+                
+                if (response.ok) {
+                    output.innerHTML = `
+                        <div style="margin-bottom: 10px;">
+                            <strong>Generated ${language} code:</strong>
+                            <span class="timestamp">(${responseTime}ms)</span>
+                        </div>
+                        <pre style="white-space: pre-wrap; background: #f8f9fa; padding: 10px; border-radius: 4px;">${data.code}</pre>
+                    `;
+                } else {
+                    output.innerHTML = `<span style="color: red;">Error: ${data.detail}</span>`;
+                }
+            } catch (error) {
+                updateMetricsData(Date.now() - startTime, false);
+                output.innerHTML = `<span style="color: red;">Network error: ${error.message}</span>`;
+            }
+        }
+
+        async function sendChat() {
+            const message = document.getElementById('chat-message').value;
+            const context = document.getElementById('chat-context').value;
+            const output = document.getElementById('chat-output');
+            
+            if (!message.trim()) {
+                output.innerHTML = '<span style="color: red;">Please enter a message.</span>';
+                return;
+            }
+
+            output.innerHTML = '<div class="loading"></div> Processing message...';
+            
+            const startTime = Date.now();
+            
+            try {
+                const response = await fetch(`${API_BASE}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        context: context,
+                        temperature: 0.1,
+                        max_tokens: 1024
+                    })
+                });
+
+                const data = await response.json();
+                const responseTime = Date.now() - startTime;
+                
+                updateMetricsData(responseTime, response.ok);
+                
+                if (response.ok) {
+                    output.innerHTML = `
+                        <div style="margin-bottom: 10px;">
+                            <strong>DeepSeek R1 Response:</strong>
+                            <span class="timestamp">(${responseTime}ms)</span>
+                        </div>
+                        <div style="white-space: pre-wrap; line-height: 1.6;">${data.response}</div>
+                    `;
+                } else {
+                    output.innerHTML = `<span style="color: red;">Error: ${data.detail}</span>`;
+                }
+            } catch (error) {
+                updateMetricsData(Date.now() - startTime, false);
+                output.innerHTML = `<span style="color: red;">Network error: ${error.message}</span>`;
+            }
+        }
+
+        async function startStreaming() {
+            const query = document.getElementById('stream-query').value;
+            const dataType = document.getElementById('stream-type').value;
+            const output = document.getElementById('stream-output');
+            
+            if (!query.trim()) {
+                output.innerHTML = '<span style="color: red;">Please enter a data query.</span>';
+                return;
+            }
+
+            output.innerHTML = '<span style="color: #00ff00;">🌊 Starting real-time data stream...</span>\n';
+            
+            const startTime = Date.now();
+            
+            try {
+                const response = await fetch(`${API_BASE}/real-time-data`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        data_type: dataType,
+                        query: query,
+                        processing_mode: 'streaming',
+                        max_results: 50
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let chunkCount = 0;
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+                                chunkCount++;
+                                
+                                const timestamp = new Date().toLocaleTimeString();
+                                const content = data.content || data.error || 'Processing...';
+                                
+                                output.innerHTML += `<div class="stream-chunk">
+                                    <span class="timestamp">[${timestamp}]</span> 
+                                    Chunk ${chunkCount}: ${content.substring(0, 100)}${content.length > 100 ? '...' : ''}
+                                </div>`;
+                                
+                                output.scrollTop = output.scrollHeight;
+                                
+                                if (data.chunk_id === 'final') {
+                                    const responseTime = Date.now() - startTime;
+                                    updateMetricsData(responseTime, true);
+                                    output.innerHTML += `<div class="stream-chunk" style="color: #ffff00;">
+                                        ✅ Streaming completed! Total chunks: ${chunkCount}, Time: ${responseTime}ms
+                                    </div>`;
+                                    break;
+                                }
+                            } catch (e) {
+                                console.error('Error parsing chunk:', e);
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                updateMetricsData(Date.now() - startTime, false);
+                output.innerHTML += `<div style="color: red;">❌ Streaming error: ${error.message}</div>`;
+            }
+        }
+
+        function connectWebSocket() {
+            const message = document.getElementById('ws-message').value;
+            const output = document.getElementById('ws-output');
+            const btn = document.getElementById('ws-btn');
+            
+            if (websocket && websocket.readyState === WebSocket.OPEN) {
+                // Send message
+                if (!message.trim()) {
+                    output.innerHTML += '<span style="color: red;">Please enter a message.</span>\n';
+                    return;
+                }
+                
+                const request = {
+                    type: 'real_time_data',
+                    payload: {
+                        data_type: 'code_analysis',
+                        query: message,
+                        processing_mode: 'streaming'
+                    }
+                };
+                
+                websocket.send(JSON.stringify(request));
+                output.innerHTML += `<span style="color: #00ff00;">📤 Sent: ${message}</span>\n`;
+                output.scrollTop = output.scrollHeight;
+                return;
+            }
+            
+            // Connect WebSocket
+            output.innerHTML = '<span style="color: #00ff00;">🔌 Connecting to WebSocket...</span>\n';
+            btn.textContent = 'Connecting...';
+            btn.disabled = true;
+            
+            // Use appropriate WebSocket URL based on environment
+            const wsUrl = isExternal ? 
+                'wss://work-1-nrbspfazbqxywbea.prod-runtime.all-hands.dev/ws/real-time' : 
+                'ws://localhost:12000/ws/real-time';
+            
+            websocket = new WebSocket(wsUrl);
+            
+            websocket.onopen = function() {
+                output.innerHTML += '<span style="color: #00ff00;">✅ WebSocket connected!</span>\n';
+                btn.textContent = 'Send Message';
+                btn.disabled = false;
+                output.scrollTop = output.scrollHeight;
+            };
+            
+            websocket.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    const timestamp = new Date().toLocaleTimeString();
+                    const content = data.content || data.error || JSON.stringify(data);
+                    
+                    output.innerHTML += `<div class="stream-chunk">
+                        <span class="timestamp">[${timestamp}]</span> 
+                        📡 ${content.substring(0, 100)}${content.length > 100 ? '...' : ''}
+                    </div>`;
+                    output.scrollTop = output.scrollHeight;
+                } catch (e) {
+                    output.innerHTML += `<span style="color: #ffff00;">📡 Raw: ${event.data}</span>\n`;
+                    output.scrollTop = output.scrollHeight;
+                }
+            };
+            
+            websocket.onclose = function() {
+                output.innerHTML += '<span style="color: #ff6666;">❌ WebSocket disconnected</span>\n';
+                btn.textContent = 'Connect WebSocket';
+                btn.disabled = false;
+                websocket = null;
+                output.scrollTop = output.scrollHeight;
+            };
+            
+            websocket.onerror = function(error) {
+                output.innerHTML += `<span style="color: red;">❌ WebSocket error: ${error}</span>\n`;
+                btn.textContent = 'Connect WebSocket';
+                btn.disabled = false;
+                output.scrollTop = output.scrollHeight;
+            };
+        }
+
+        function updateMetricsData(responseTime, success) {
+            metrics.totalRequests++;
+            if (success) {
+                metrics.successfulRequests++;
+            }
+            metrics.totalResponseTime += responseTime;
+        }
+
+        async function updateMetrics() {
+            try {
+                const response = await fetch(`${API_BASE}/metrics`);
+                const data = await response.json();
+                
+                const systemMetrics = data.system_metrics || {};
+                const realTimeStats = data.real_time_stats || {};
+                
+                document.getElementById('total-requests').textContent = systemMetrics.total_requests || metrics.totalRequests;
+                
+                const successRate = systemMetrics.total_requests > 0 
+                    ? Math.round((systemMetrics.successful_requests / systemMetrics.total_requests) * 100)
+                    : (metrics.totalRequests > 0 ? Math.round((metrics.successfulRequests / metrics.totalRequests) * 100) : 100);
+                document.getElementById('success-rate').textContent = `${successRate}%`;
+                
+                const avgResponse = metrics.totalRequests > 0 
+                    ? Math.round(metrics.totalResponseTime / metrics.totalRequests)
+                    : 0;
+                document.getElementById('avg-response').textContent = `${avgResponse}ms`;
+                
+                document.getElementById('active-connections').textContent = realTimeStats.active_connections || 0;
+                
+            } catch (error) {
+                console.error('Failed to update metrics:', error);
+            }
+        }
+    </script>
+</body>
+</html>

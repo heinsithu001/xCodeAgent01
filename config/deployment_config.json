@@ -1,0 +1,17 @@
+{
+  "deployment_type": "cpu",
+  "model_config": {
+    "model_name": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+    "max_model_len": 4096,
+    "device": "cpu",
+    "max_concurrent_requests": 2,
+    "cpu_threads": 2,
+    "batch_size": 1,
+    "quantization": "gptq"
+  },
+  "performance_tier": "minimal",
+  "recommendations": [
+    "Limited RAM detected. Consider upgrading for better performance.",
+    "Docker not available. Manual installation required."
+  ]
+}

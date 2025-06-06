@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced CodeAgent v3.0 | Unified AI Platform</title>
+    <style>
+        /* Enhanced Premium Dark Theme */
+        :root {
+            /* Primary Gradients */
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-success: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --gradient-warning: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --gradient-openhands: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-manus: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-emergent: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --gradient-hybrid: linear-gradient(135deg, #667eea 0%, #f093fb 50%, #43e97b 100%);
+            
+            /* Dark Base Colors */
+            --bg-primary: #0f0f23;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #16213e;
+            --bg-glass: rgba(255, 255, 255, 0.05);
+            --bg-glass-strong: rgba(255, 255, 255, 0.1);
+            
+            /* Text Colors */
+            --text-primary: #ffffff;
+            --text-secondary: #b4b4b4;
+            --text-accent: #64ffda;
+            --text-openhands: #667eea;
+            --text-manus: #f093fb;
+            --text-emergent: #43e97b;
+            
+            /* Border & Shadow */
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --shadow-glow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            --shadow-intense: 0 15px 35px rgba(0, 0, 0, 0.5);
+            --shadow-openhands: 0 8px 32px rgba(102, 126, 234, 0.3);
+            --shadow-manus: 0 8px 32px rgba(240, 147, 251, 0.3);
+            --shadow-emergent: 0 8px 32px rgba(67, 233, 123, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Enhanced Glassmorphism */
+        .glass-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--border-glass);
+            border-radius: 15px;
+            box-shadow: var(--shadow-glow);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            background: var(--bg-glass-strong);
+            transform: translateY(-2px);
+        }
+
+        /* Enhanced Navigation */
+        .navbar {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-hybrid);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Status Banner Enhanced */
+        .status-banner {
+            padding: 1rem 2rem;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+            margin: 1rem 2rem 2rem;
+        }
+
+        .status-demo {
+            background: var(--gradient-warning);
+            color: white;
+        }
+
+        .status-production {
+            background: var(--gradient-success);
+            color: white;
+        }
+
+        /* Execution Mode Selector */
+        .mode-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .mode-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(15px);
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .mode-card.openhands::before { background: var(--gradient-openhands); }
+        .mode-card.manus::before { background: var(--gradient-manus); }
+        .mode-card.emergent::before { background: var(--gradient-emergent); }
+        .mode-card.hybrid::before { background: var(--gradient-hybrid); }
+
+        .mode-card:hover::before {
+            opacity: 0.1;
+        }
+
+        .mode-card.active {
+            border-color: var(--text-accent);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-intense);
+        }
+
+        .mode-card.active::before {
+            opacity: 0.2;
+        }
+
+        .mode-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mode-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .mode-features {
+            margin-top: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .feature-tag {
+            background: var(--bg-glass-strong);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: var(--text-accent);
+        }
+
+        /* Enhanced Buttons */
+        .btn-gradient {
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+
+        .btn-openhands {
+            background: var(--gradient-openhands);
+            box-shadow: var(--shadow-openhands);
+        }
+
+        .btn-manus {
+            background: var(--gradient-manus);
+            box-shadow: var(--shadow-manus);
+        }
+
+        .btn-emergent {
+            background: var(--gradient-emergent);
+            box-shadow: var(--shadow-emergent);
+        }
+
+        .btn-hybrid {
+            background: var(--gradient-hybrid);
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Enhanced Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--text-accent);
+            box-shadow: 0 0 0 3px rgba(100, 255, 218, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* Enhanced Output Areas */
+        .output-container {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 15px;
+            padding: 1.5rem;
+            min-height: 200px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .output-container::before {
+            content: attr(data-mode);
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: var(--gradient-accent);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Enhanced Loading Animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .loading-content {
+            text-align: center;
+            color: white;
+        }
+
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left: 4px solid var(--text-accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .loading-subtext {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Enhanced Grid Layout */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-section {
+            background: var(--bg-glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--border-glass);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-section:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-intense);
+        }
+
+        .feature-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Session Management */
+        .session-info {
+            background: var(--bg-glass);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .mode-selector {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">
+                <span>🤖</span>
+                <span>Enhanced CodeAgent v3.0</span>
+            </div>
+            <button class="btn-gradient btn-hybrid" onclick="refreshStatus()">
+                <span>🔄</span>
+                <span>Refresh Status</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Status Banner -->
+    <div id="statusBanner" class="status-banner status-demo">
+        🟡 Initializing Unified AI Platform...
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Execution Mode Selector -->
+        <div class="mode-selector">
+            <div class="mode-card openhands" data-mode="openhands" onclick="selectMode('openhands')">
+                <div class="mode-title">
+                    <span>🤖</span>
+                    <span>OpenHands Mode</span>
+                </div>
+                <div class="mode-description">
+                    High-reliability execution with sandboxed environment. 53% SWE-Bench success rate.
+                </div>
+                <div class="mode-features">
+                    <span class="feature-tag">Sandboxed</span>
+                    <span class="feature-tag">Reliable</span>
+                    <span class="feature-tag">53% Success</span>
+                </div>
+            </div>
+
+            <div class="mode-card manus" data-mode="manus" onclick="selectMode('manus')">
+                <div class="mode-title">
+                    <span>🧠</span>
+                    <span>Manus AI Mode</span>
+                </div>
+                <div class="mode-description">
+                    Autonomous execution with full transparency and background processing.
+                </div>
+                <div class="mode-features">
+                    <span class="feature-tag">Autonomous</span>
+                    <span class="feature-tag">Transparent</span>
+                    <span class="feature-tag">Background</span>
+                </div>
+            </div>
+
+            <div class="mode-card emergent" data-mode="emergent" onclick="selectMode('emergent')">
+                <div class="mode-title">
+                    <span>✨</span>
+                    <span>Emergent Mode</span>
+                </div>
+                <div class="mode-description">
+                    Natural language to production apps. Full-stack generation with deployment.
+                </div>
+                <div class="mode-features">
+                    <span class="feature-tag">Vibe Coding</span>
+                    <span class="feature-tag">Full-Stack</span>
+                    <span class="feature-tag">Deploy Ready</span>
+                </div>
+            </div>
+
+            <div class="mode-card hybrid active" data-mode="hybrid" onclick="selectMode('hybrid')">
+                <div class="mode-title">
+                    <span>🎯</span>
+                    <span>Hybrid Mode</span>
+                </div>
+                <div class="mode-description">
+                    Best of all three: OpenHands reliability + Manus autonomy + Emergent creativity.
+                </div>
+                <div class="mode-features">
+                    <span class="feature-tag">Unified</span>
+                    <span class="feature-tag">Best of All</span>
+                    <span class="feature-tag">Optimal</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Session Info -->
+        <div id="sessionInfo" class="session-info">
+            <strong>Session:</strong> <span id="currentSession">Not started</span> | 
+            <strong>Mode:</strong> <span id="currentMode">hybrid</span> | 
+            <strong>Status:</strong> <span id="sessionStatus">Ready</span>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="features-grid">
+            <!-- Advanced Code Generation -->
+            <div class="feature-section">
+                <div class="feature-header">
+                    <span class="feature-icon">📝</span>
+                    <span class="feature-title">Unified Code Generation</span>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Describe your code requirements:</label>
+                    <textarea 
+                        id="codePrompt" 
+                        class="form-textarea" 
+                        placeholder="Example: Create a FastAPI server with JWT authentication, rate limiting, and comprehensive error handling. Include unit tests and documentation."
+                    >Create a simple REST API with FastAPI for user management</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Programming Language:</label>
+                    <select id="codeLanguage" class="form-select">
+                        <option value="python">Python</option>
+                        <option value="javascript">JavaScript</option>
+                        <option value="typescript">TypeScript</option>
+                        <option value="java">Java</option>
+                        <option value="cpp">C++</option>
+                        <option value="rust">Rust</option>
+                        <option value="go">Go</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Complexity Level:</label>
+                    <select id="codeComplexity" class="form-select">
+                        <option value="simple">Simple - Basic implementation</option>
+                        <option value="standard" selected>Standard - Production ready</option>
+                        <option value="advanced">Advanced - Enterprise grade</option>
+                    </select>
+                </div>
+                
+                <button id="generateCodeBtn" class="btn-gradient btn-hybrid" onclick="generateCode()">
+                    <span>🚀</span>
+                    <span>Generate Code</span>
+                </button>
+                
+                <div id="codeOutput" class="output-container" data-mode="hybrid">
+                    Generated code will appear here...
+                </div>
+            </div>
+
+            <!-- Intelligent Code Analysis -->
+            <div class="feature-section">
+                <div class="feature-header">
+                    <span class="feature-icon">🔍</span>
+                    <span class="feature-title">Intelligent Code Analysis</span>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Paste your code for analysis:</label>
+                    <textarea 
+                        id="analysisCode" 
+                        class="form-textarea" 
+                        placeholder="def example_function(data):&#10;    # Your code here&#10;    result = process_data(data)&#10;    return result"
+                    ></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Analysis Type:</label>
+                    <select id="analysisType" class="form-select">
+                        <option value="general">General Analysis</option>
+                        <option value="security">Security Audit</option>
+                        <option value="performance">Performance Review</option>
+                        <option value="maintainability">Maintainability Assessment</option>
+                    </select>
+                </div>
+                
+                <button id="analyzeCodeBtn" class="btn-gradient btn-openhands" onclick="analyzeCode()">
+                    <span>🔬</span>
+                    <span>Analyze Code</span>
+                </button>
+                
+                <div id="analysisOutput" class="output-container" data-mode="openhands">
+                    Analysis results will appear here...
+                </div>
+            </div>
+
+            <!-- Unified AI Chat -->
+            <div class="feature-section">
+                <div class="feature-header">
+                    <span class="feature-icon">💬</span>
+                    <span class="feature-title">Unified AI Chat</span>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Ask anything about programming:</label>
+                    <textarea 
+                        id="chatInput" 
+                        class="form-textarea" 
+                        placeholder="Examples:&#10;• How do I implement microservices architecture?&#10;• What are the best practices for database optimization?&#10;• Explain the differences between async/await and promises&#10;• How can I improve my code's performance?"
+                    >How do I create a FastAPI server with authentication?</textarea>
+                </div>
+                
+                <button id="chatBtn" class="btn-gradient btn-manus" onclick="chatWithAI()">
+                    <span>💭</span>
+                    <span>Ask Unified AI</span>
+                </button>
+                
+                <div id="chatOutput" class="output-container" data-mode="manus">
+                    AI response will appear here...
+                </div>
+            </div>
+
+            <!-- Vibe Coding (Emergent Style) -->
+            <div class="feature-section">
+                <div class="feature-header">
+                    <span class="feature-icon">✨</span>
+                    <span class="feature-title">Vibe Coding - App Generator</span>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Describe your app idea:</label>
+                    <textarea 
+                        id="vibeDescription" 
+                        class="form-textarea" 
+                        placeholder="Example: Create a social media app with real-time chat, user profiles, photo sharing, and notifications"
+                    >Create a task management app with real-time collaboration</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Tech Stack:</label>
+                    <select id="vibeStack" class="form-select">
+                        <option value="fastapi-react">FastAPI + React</option>
+                        <option value="django-react">Django + React</option>
+                        <option value="nextjs">Next.js Full-Stack</option>
+                        <option value="nodejs-react">Node.js + React</option>
+                        <option value="python-vue">Python + Vue.js</option>
+                    </select>
+                </div>
+                
+                <button id="vibeCodeBtn" class="btn-gradient btn-emergent" onclick="vibeCodeApp()">
+                    <span>✨</span>
+                    <span>Generate App</span>
+                </button>
+                
+                <div id="vibeOutput" class="output-container" data-mode="emergent">
+                    Generated app will appear here...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Processing with Unified AI...</div>
+            <div class="loading-subtext">OpenHands + Manus + Emergent working together</div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'https://work-1-ghtpeisgtbqwlbdq.prod-runtime.all-hands.dev';
+        let currentMode = 'hybrid';
+        let currentSession = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshStatus();
+            updateModeDisplay();
+        });
+
+        // Mode Selection
+        function selectMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+            document.getElementById('currentMode').textContent = mode;
+            updateModeDisplay();
+        }
+
+        function updateModeDisplay() {
+            // Update output containers with current mode
+            document.querySelectorAll('.output-container').forEach(container => {
+                if (container.id === 'codeOutput' || container.id === 'chatOutput') {
+                    container.setAttribute('data-mode', currentMode);
+                }
+            });
+            
+            // Update button styles based on mode
+            const codeBtn = document.getElementById('generateCodeBtn');
+            const chatBtn = document.getElementById('chatBtn');
+            
+            // Reset button classes
+            [codeBtn, chatBtn].forEach(btn => {
+                btn.className = 'btn-gradient';
+            });
+            
+            // Apply mode-specific styling
+            switch(currentMode) {
+                case 'openhands':
+                    codeBtn.classList.add('btn-openhands');
+                    chatBtn.classList.add('btn-openhands');
+                    break;
+                case 'manus':
+                    codeBtn.classList.add('btn-manus');
+                    chatBtn.classList.add('btn-manus');
+                    break;
+                case 'emergent':
+                    codeBtn.classList.add('btn-emergent');
+                    chatBtn.classList.add('btn-emergent');
+                    break;
+                default:
+                    codeBtn.classList.add('btn-hybrid');
+                    chatBtn.classList.add('btn-hybrid');
+            }
+        }
+
+        // API Functions
+        async function makeAPICall(endpoint, data = null) {
+            const url = `${API_BASE_URL}${endpoint}`;
+            const options = {
+                method: data ? 'POST' : 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+            
+            if (data) {
+                options.body = JSON.stringify(data);
+            }
+            
+            const response = await fetch(url, options);
+            return await response.json();
+        }
+
+        async function refreshStatus() {
+            try {
+                const result = await makeAPICall('/api/v3/status');
+                const banner = document.getElementById('statusBanner');
+                
+                if (result.success) {
+                    if (result.demo_mode) {
+                        banner.className = 'status-banner status-demo';
+                        banner.textContent = '🟡 Unified AI Platform Active - Demo Mode (Cost-Free Operation)';
+                    } else {
+                        banner.className = 'status-banner status-production';
+                        banner.textContent = '🟢 Unified AI Platform Running - Production Mode Active';
+                    }
+                } else {
+                    banner.className = 'status-banner status-demo';
+                    banner.textContent = '🔴 System Status Unknown';
+                }
+            } catch (error) {
+                console.error('Status check failed:', error);
+                // Fallback to v2 API
+                try {
+                    const result = await makeAPICall('/api/v2/status');
+                    const banner = document.getElementById('statusBanner');
+                    if (result.success) {
+                        banner.className = 'status-banner status-demo';
+                        banner.textContent = '🟡 Legacy API Active - Enhanced Features Loading...';
+                    }
+                } catch (e) {
+                    const banner = document.getElementById('statusBanner');
+                    banner.className = 'status-banner status-demo';
+                    banner.textContent = '🔴 Connection Error - Check Server Status';
+                }
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        function updateOutput(elementId, content) {
+            document.getElementById(elementId).textContent = content;
+        }
+
+        // Feature Functions
+        async function generateCode() {
+            const prompt = document.getElementById('codePrompt').value;
+            const language = document.getElementById('codeLanguage').value;
+            const complexity = document.getElementById('codeComplexity').value;
+            
+            if (!prompt.trim()) {
+                alert('Please enter a code generation prompt');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                // Try v3 API first, fallback to v2
+                let result;
+                try {
+                    result = await makeAPICall('/api/v3/generate-code', {
+                        prompt: prompt,
+                        language: language,
+                        complexity: complexity,
+                        include_tests: complexity === 'advanced',
+                        execution_mode: currentMode
+                    });
+                } catch (e) {
+                    result = await makeAPICall('/api/v2/generate-code', {
+                        prompt: prompt,
+                        language: language,
+                        complexity: complexity,
+                        include_tests: complexity === 'advanced'
+                    });
+                }
+                
+                if (result.success) {
+                    updateOutput('codeOutput', result.data.code);
+                    if (result.session_id) {
+                        currentSession = result.session_id;
+                        document.getElementById('currentSession').textContent = result.session_id.substring(0, 8) + '...';
+                    }
+                } else {
+                    updateOutput('codeOutput', `Error: ${result.error || result.message}`);
+                }
+            } catch (error) {
+                updateOutput('codeOutput', `Error: ${error.message}`);
+            }
+            
+            hideLoading();
+        }
+
+        async function analyzeCode() {
+            const code = document.getElementById('analysisCode').value;
+            const analysisType = document.getElementById('analysisType').value;
+            
+            if (!code.trim()) {
+                alert('Please enter code to analyze');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                let result;
+                try {
+                    result = await makeAPICall('/api/v3/analyze-code', {
+                        code: code,
+                        analysis_type: analysisType,
+                        include_suggestions: true,
+                        execution_mode: 'openhands'
+                    });
+                } catch (e) {
+                    result = await makeAPICall('/api/v2/analyze-code', {
+                        code: code,
+                        analysis_type: analysisType,
+                        include_suggestions: true
+                    });
+                }
+                
+                if (result.success) {
+                    updateOutput('analysisOutput', result.data.analysis);
+                } else {
+                    updateOutput('analysisOutput', `Error: ${result.error || result.message}`);
+                }
+            } catch (error) {
+                updateOutput('analysisOutput', `Error: ${error.message}`);
+            }
+            
+            hideLoading();
+        }
+
+        async function chatWithAI() {
+            const message = document.getElementById('chatInput').value;
+            
+            if (!message.trim()) {
+                alert('Please enter a message');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                let result;
+                try {
+                    result = await makeAPICall('/api/v3/chat', {
+                        message: message,
+                        execution_mode: currentMode
+                    });
+                } catch (e) {
+                    result = await makeAPICall('/api/v2/chat', {
+                        message: message
+                    });
+                }
+                
+                if (result.success) {
+                    updateOutput('chatOutput', result.data.response);
+                } else {
+                    updateOutput('chatOutput', `Error: ${result.error || result.message}`);
+                }
+            } catch (error) {
+                updateOutput('chatOutput', `Error: ${error.message}`);
+            }
+            
+            hideLoading();
+        }
+
+        async function vibeCodeApp() {
+            const description = document.getElementById('vibeDescription').value;
+            const stack = document.getElementById('vibeStack').value;
+            
+            if (!description.trim()) {
+                alert('Please describe your app idea');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                let result;
+                try {
+                    result = await makeAPICall('/api/v3/vibe-code', {
+                        description: description,
+                        stack: stack,
+                        deployment: 'docker',
+                        include_auth: true
+                    });
+                } catch (e) {
+                    // Fallback to regular code generation for vibe coding
+                    result = await makeAPICall('/api/v2/generate-code', {
+                        prompt: `Create a ${stack} application: ${description}`,
+                        language: 'python',
+                        complexity: 'advanced'
+                    });
+                }
+                
+                if (result.success) {
+                    updateOutput('vibeOutput', result.data.code);
+                } else {
+                    updateOutput('vibeOutput', `Error: ${result.error || result.message}`);
+                }
+            } catch (error) {
+                updateOutput('vibeOutput', `Error: ${error.message}`);
+            }
+            
+            hideLoading();
+        }
+
+        // Auto-refresh status every 30 seconds
+        setInterval(refreshStatus, 30000);
+    </script>
+</body>
+</html>

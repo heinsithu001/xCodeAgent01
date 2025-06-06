@@ -1,0 +1,18 @@
+{
+  "platform": "Linux",
+  "platform_release": "5.15.0-1078-gke",
+  "architecture": "x86_64",
+  "python_version": "3.12.10 | packaged by conda-forge | (main, Apr 10 2025, 22:21:13) [GCC 13.3.0]",
+  "cpu_cores": 4,
+  "cpu_cores_physical": 2,
+  "total_ram_gb": 15,
+  "available_ram_gb": 12,
+  "has_gpu": false,
+  "gpu_count": 0,
+  "gpu_memory": [],
+  "cuda_available": false,
+  "docker_available": false,
+  "docker_version": null,
+  "git_available": true,
+  "git_version": "git version 2.39.5"
+}

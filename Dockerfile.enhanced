@@ -1,0 +1,39 @@
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy source code
+COPY src/ ./src/
+COPY frontend-v3/ ./frontend-v3/
+COPY frontend-v2/ ./frontend-v2/
+
+# Create necessary directories
+RUN mkdir -p logs uploads workspace storage
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV FRONTEND_PATH=/app/frontend-v3
+
+# Expose port
+EXPOSE 12000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import requests; requests.get('http://localhost:12000/api/v3/status')" || exit 1
+
+# Run the enhanced server
+CMD ["python", "src/enhanced_production_server.py"]
